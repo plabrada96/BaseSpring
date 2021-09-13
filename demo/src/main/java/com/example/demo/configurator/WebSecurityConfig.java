@@ -23,10 +23,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.anonymous()
 		.disable()
 		.authorizeRequests()
-		.antMatchers("/api-docs/**").permitAll()
+		.antMatchers("/v3/api-docs/**").permitAll()
+		.antMatchers("/actuator/health").permitAll()
+		.antMatchers("/actuator/prometheus").permitAll()
 		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll();
 	}
-	
 	
 
 	@Bean

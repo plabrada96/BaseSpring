@@ -1,13 +1,33 @@
 package com.example.demo.commons.model;
 
-public interface GenericEntity<T> {
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-    // update current instance with provided data
-    void update(T source);
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.MappedSuperclass;
 
-    Long getId();
+import org.springframework.data.annotation.Version;
+import javax.persistence.Id;
+import lombok.Data;
 
-    // based on current data create new instance with new id
-    T createNewInstance();
+@MappedSuperclass
+@Data
+public class GenericEntity implements Serializable{
 
+	private static final long serialVersionUID = 6571913292391065789L;
+	
+	@Id 
+	@GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+
+    @Version
+    private int version;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public GenericEntity() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }   
 }

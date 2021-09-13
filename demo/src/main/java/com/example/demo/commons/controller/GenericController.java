@@ -1,7 +1,8 @@
 package com.example.demo.commons.controller;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.io.Serializable;
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,45 +11,38 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.example.demo.commons.Service.GenericService;
+import com.example.demo.commons.Service.GenericServiceImpl;
+import com.example.demo.commons.Service.IGenericService;
 import com.example.demo.commons.model.GenericEntity;
-import com.example.demo.commons.repository.GenericRepository;
 
-public abstract class GenericController<T extends GenericEntity<T>> {
+public abstract class GenericController<T extends GenericEntity, ID extends Serializable>
+		implements IGenericService<T, ID> {
 
-    private final GenericService<T> service;
+	private GenericServiceImpl<T, ID> genericServiceImpl;
+	
+	@PostMapping("")
+	public ResponseEntity<T> create(@RequestBody T created) {
+		return ResponseEntity.ok(genericServiceImpl.save(created));
+	}
+	
+//	@GetMapping("")
+//	public ResponseEntity<Page<T>> findAll(Pageable pageable) {
+//		return ResponseEntity.ok(genericServiceImpl.findAll(pageable));
+//	}
 
-    public GenericController(GenericRepository<T> repository) {
-        this.service = new GenericService<T>(repository) {};
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<Optional<T>> getOne(@PathVariable ID id) {
+		return ResponseEntity.ok(genericServiceImpl.findById(id));
+	}
+	
+	@PutMapping("")
+	public ResponseEntity<T> updateEntityById(@RequestBody T entity, @PathVariable ID id) {
+		return ResponseEntity.ok(genericServiceImpl.updateById(entity, id));
+	}
 
-    @GetMapping("")
-    public ResponseEntity<Page<T>> getPage(Pageable pageable){
-        return ResponseEntity.ok(service.getPage(pageable));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<T> getOne(@PathVariable Long id){
-        return ResponseEntity.ok(service.get(id));
-    }
-
-    @PutMapping("")
-    public ResponseEntity<T> update(@RequestBody T updated){
-        return ResponseEntity.ok(service.update(updated));
-    }
-
-    @PostMapping("")
-    public ResponseEntity<T> create(@RequestBody T created){
-        return ResponseEntity.ok(service.create(created));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
-        service.delete(id);
-        return ResponseEntity.ok("Ok");
-    }
-    
-    public GenericService<T> getService() {
-		return service;
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteEntityById(@PathVariable ID id) {
+		genericServiceImpl.deleteById(id);
+		return ResponseEntity.ok("Ok");
 	}
 }
